@@ -1,6 +1,8 @@
+using AvistaRD.Domain.Common;
+
 namespace AvistaRD.Domain;
 
-public class Evidence
+public class Evidence : AuditableEntity
 {
     public int SightingId { get; set; }
 

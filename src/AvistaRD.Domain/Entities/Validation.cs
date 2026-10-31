@@ -1,6 +1,8 @@
+using AvistaRD.Domain.Common;
+
 namespace AvistaRD.Domain;
 
-public class Validation
+public class Validation : AuditableEntity
 {
     public int SightingId { get; set; }
 
