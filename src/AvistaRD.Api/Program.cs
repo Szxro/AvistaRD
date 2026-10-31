@@ -1,3 +1,4 @@
+using AvistaRD.Api.Middlewares;
 using AvistaRD.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 
@@ -14,6 +15,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddProblemDetails();
+    builder.Services.AddTransient<FallBackRouteMiddleware>(); 
 }
 
 
@@ -35,6 +38,8 @@ WebApplication app = builder.Build();
     app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 
     app.MapControllers();
+    
+    app.UseMiddleware<FallBackRouteMiddleware>();
 
     app.Run();
 }
