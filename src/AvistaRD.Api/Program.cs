@@ -1,4 +1,5 @@
 using AvistaRD.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 {
@@ -27,7 +28,11 @@ WebApplication app = builder.Build();
 
     app.UseHttpsRedirection();
 
+    app.UseAuthentication();
+    
     app.UseAuthorization();
+
+    app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 
     app.MapControllers();
 
