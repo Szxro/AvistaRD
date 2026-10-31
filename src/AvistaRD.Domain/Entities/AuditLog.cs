@@ -2,7 +2,9 @@
 
 public class AuditLog
 {
-    public int UserId { get; set; }
+    public int Id { get; set; }
+    
+    public string UserId { get; set; } =  string.Empty;
     
     public string RequestName { get; set; } = null!; // CommandName, QueryName
 

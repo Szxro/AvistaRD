@@ -6,7 +6,7 @@ public class Validation
 
     public Sighting Sighting { get; set; } = null!;
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     public int ValidationStatusId { get; set; }
 

@@ -10,7 +10,7 @@ public class Sighting : AuditableEntity
         SightingThreats = new List<SightingThreat>();
     }
     
-    public int UserId { get; set; }
+    public string UserId { get; set; }
 
     public int SpeciesId { get; set; }
     
