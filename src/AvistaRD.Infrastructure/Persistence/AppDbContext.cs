@@ -1,13 +1,16 @@
+using System.Data;
+using AvistaRD.Application.Common.Abstractions;
 using AvistaRD.Domain;
 using AvistaRD.Domain.Common;
 using AvistaRD.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AvistaRD.Infrastructure.Persistence;
 
-public class AppDbContext : IdentityDbContext<IdentityUser>
+public class AppDbContext : IdentityDbContext<IdentityUser>, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
@@ -46,4 +49,11 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet<ValidationStatus> ValidationStatus => Set<ValidationStatus>();
     
     public DbSet<Zone> Zone => Set<Zone>();
+    
+    public async Task<IDbTransaction> GetDbTransaction(CancellationToken cancellationToken = default)
+    {
+        IDbContextTransaction transaction = await Database.BeginTransactionAsync(cancellationToken);
+        
+        return transaction.GetDbTransaction();
+    }
 }

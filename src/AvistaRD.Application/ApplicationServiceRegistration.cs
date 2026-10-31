@@ -1,3 +1,35 @@
-﻿namespace AvistaRD.Application;
+﻿using AvistaRD.Application.Common.Pipelines;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 
-public static class ApplicationServiceRegistration { }
+namespace AvistaRD.Application;
+
+public static class ApplicationServiceRegistration
+{
+    public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
+    {
+        // stops executing a validator class as soon as a rule fails
+        ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
+        
+        services.AddValidatorsFromAssembly(typeof(ApplicationServiceRegistration).Assembly);
+        
+        services.AddMediatR(options =>
+        {
+            string? licenseKey = Environment.GetEnvironmentVariable("MEDIATR_LICENSE_KEY");
+
+            options.LicenseKey = licenseKey;
+            
+            options.RegisterServicesFromAssembly(typeof(ApplicationServiceRegistration).Assembly);
+            
+            // Pipelines
+            options.AddOpenBehavior(typeof(RequestExceptionHandlingPipelineBehavior<,>));
+            options.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>));
+            options.AddOpenBehavior(typeof(RequestPerformancePipelineBehavior<,>));
+            options.AddOpenBehavior(typeof(RequestValidationPipelineBehavior<,>));
+            options.AddOpenBehavior(typeof(RequestTransactionPipelineBehavior<,>));
+            // TODO: CREATE AUDIT LOG PIPELINE BEHAVIOR
+        });
+        
+        return services;
+    }
+}

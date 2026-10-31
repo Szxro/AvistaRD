@@ -1,4 +1,5 @@
-﻿using AvistaRD.Infrastructure.Extensions;
+﻿using AvistaRD.Application.Common.Abstractions;
+using AvistaRD.Infrastructure.Extensions;
 using AvistaRD.Infrastructure.Options;
 using AvistaRD.Infrastructure.Persistence;
 using FluentValidation;
@@ -40,6 +41,8 @@ public static class InfrastructureServiceRegistration
         services
             .AddIdentityApiEndpoints<IdentityUser>()
             .AddEntityFrameworkStores<AppDbContext>();
+        
+        services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         
         return services;
     }
