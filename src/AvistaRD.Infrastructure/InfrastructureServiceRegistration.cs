@@ -2,6 +2,7 @@
 using AvistaRD.Infrastructure.Extensions;
 using AvistaRD.Infrastructure.Options;
 using AvistaRD.Infrastructure.Persistence;
+using AvistaRD.Infrastructure.Persistence.Interceptors;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,8 @@ public static class InfrastructureServiceRegistration
             options.UseSqlServer(databaseOptions.ConnectionString, sqlOptions =>
             {
                 sqlOptions.CommandTimeout(databaseOptions.CommandTimeout); 
-            })
+            }) .AddInterceptors(
+                provider.GetRequiredService<AuditableEntityInterceptor>())
                 .UseSnakeCaseNamingConvention();
             
             if (environment.IsDevelopment())
