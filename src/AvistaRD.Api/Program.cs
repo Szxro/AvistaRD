@@ -1,3 +1,4 @@
+using AvistaRD.Api.Extensions;
 using AvistaRD.Api.Middlewares;
 using AvistaRD.Application;
 using AvistaRD.Infrastructure;
@@ -14,14 +15,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
     // Add services to the container.
     builder.Services
         .AddInfrastructureLayer(builder.Environment)
-        .AddApplicationLayer();
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-    builder.Services.AddProblemDetails();
-    builder.Services.AddTransient<FallBackRouteMiddleware>(); 
+        .AddApplicationLayer()
+        .AddPresentationLayer(builder.Environment);
 }
-
 
 WebApplication app = builder.Build();
 {
