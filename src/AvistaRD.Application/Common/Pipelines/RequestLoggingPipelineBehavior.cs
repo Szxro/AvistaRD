@@ -1,3 +1,4 @@
+using AvistaRD.Application.Contracts;
 using AvistaRD.SharedKernel;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -10,24 +11,24 @@ public class RequestLoggingPipelineBehavior<TRequest, TResponse>
     where TResponse : Result
 {
     private readonly ILogger<RequestLoggingPipelineBehavior<TRequest, TResponse>> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
     public RequestLoggingPipelineBehavior(
-        ILogger<RequestLoggingPipelineBehavior<TRequest, TResponse>> logger)
+        ILogger<RequestLoggingPipelineBehavior<TRequest, TResponse>> logger, 
+        ICurrentUserService currentUserService)
     {
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {   
         string requestName = typeof(TRequest).Name;
-
-        // TODO: CREATE SERVICE TO GET THE ACTIVE USER USERNAME 
-        string userName = "";
         
         _logger.LogInformation(
             "Processing the request {RequestName} requested by the user {User}",
             requestName,
-            userName ?? "System");
+            _currentUserService.UserName ?? "System");
 
         TResponse response = await next(cancellationToken);
 
@@ -36,7 +37,7 @@ public class RequestLoggingPipelineBehavior<TRequest, TResponse>
             _logger.LogInformation(
                 "Completed the request {RequestName} requested by the user {User}",
                 requestName,
-                userName ?? "System");
+                _currentUserService.UserName ?? "System");
 
             return response;
         }
@@ -44,7 +45,7 @@ public class RequestLoggingPipelineBehavior<TRequest, TResponse>
         _logger.LogWarning(
             "Completed the request {RequestName} requested by the user {User} with an error of type {ErrorName}",
             requestName,
-            userName ?? "System",
+            _currentUserService.UserName ?? "System",
             response.Error.ErrorCode);
 
         return response;
