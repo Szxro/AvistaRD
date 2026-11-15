@@ -1,3 +1,5 @@
+using AvistaRD.Domain.Entities;
+
 namespace AvistaRD.Domain;
 
 public class SightingThreat

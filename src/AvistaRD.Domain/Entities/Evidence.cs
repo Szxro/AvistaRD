@@ -1,4 +1,5 @@
 using AvistaRD.Domain.Common;
+using AvistaRD.Domain.Entities;
 
 namespace AvistaRD.Domain;
 

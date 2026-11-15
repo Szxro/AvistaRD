@@ -2,6 +2,7 @@ using System.Data;
 using AvistaRD.Application.Common.Abstractions;
 using AvistaRD.Domain;
 using AvistaRD.Domain.Common;
+using AvistaRD.Domain.Entities;
 using AvistaRD.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
