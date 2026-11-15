@@ -7,6 +7,5 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <WarningsAsErrors>CS8600;CS8602;CS8603</WarningsAsErrors>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
     </PropertyGroup>
 </Project>
