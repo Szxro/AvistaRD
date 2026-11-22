@@ -1,6 +1,6 @@
 # Running AvistaRD Project
 
-1. **Install prerequisites:** .NET SDK, Node.js (LTS), Angular CLI (`npm install -g @angular/cli`) and Git.
+1. **Install prerequisites:** Git, the .NET 8 SDK (the exact version is pinned in `global.json`) and Node.js (the exact version is pinned in `src/AvistaRD.Web/.nvmrc`; with nvm run `nvm use` inside that folder). The Angular CLI and `dotnet-ef` are project-local, so no global install is needed.
 
 2. **Clone the repository:**
    ```bash
@@ -8,39 +8,63 @@
    cd <repo-folder>
    ```
 
-3. **Create the `.env` file** from the template:
+3. **Create the `.env` file** for the API from the template:
    ```bash
-   cp .env.example .env
+   cp src/AvistaRD.Api/.env.example src/AvistaRD.Api/.env
    ```
 
-4. **Fill in `.env`** with your real values (database connection, API URL, keys). Never commit `.env`; only `.env.example` goes to Git.
+4. **Fill in `.env`** with your real values (database connection, keys). Never commit `.env`; only `.env.example` goes to Git.
 
-5. **Restore backend dependencies:**
+5. **Restore backend dependencies and tools:**
    ```bash
-   cd backend
    dotnet restore
+   dotnet tool restore
    ```
 
-6. **Set up the database**:
+6. **Run the backend:**
    ```bash
-   dotnet ef database update
-   ```
-
-7. **Run the backend:**
-   ```bash
+   cd src/AvistaRD.Api
    dotnet run
    ```
-   Check that the API responds, e.g. at `https://localhost:<port>/swagger`.
+   In Development the API applies pending migrations to the database at startup. Check that it responds, e.g. at `https://localhost:<port>/swagger` or `https://localhost:<port>/health`.
 
-8. **Install frontend dependencies** in a new terminal:
+7. **Install frontend dependencies** in a new terminal:
    ```bash
-   cd frontend
-   npm install
+   cd src/AvistaRD.Web
+   npm ci
    ```
 
-9. **Run the frontend:**
+8. **Run the frontend:**
    ```bash
-   ng serve
+   npm start
    ```
 
-10. **Open the app** at `http://localhost:4200`. If something fails, compare `.env` with `.env.example` and make sure the backend is running.
+9. **Open the app** at `http://localhost:4200`. If something fails, compare `.env` with `.env.example` and make sure the backend is running.
+
+## Tests and lint
+
+```bash
+dotnet test                 # API (xUnit), from the repository root
+cd src/AvistaRD.Web
+npm run lint                # ESLint
+npm test                    # Vitest in watch mode (npm run test:ci for a single run)
+```
+
+## Database migrations
+
+The EF Core tools use the design-time factory in `AvistaRD.Infrastructure`, so pass that project as both `-p` and `-s` (they don't start the API and don't need `.env`):
+
+```bash
+dotnet ef migrations add <Name> -p src/AvistaRD.Infrastructure -s src/AvistaRD.Infrastructure
+dotnet ef migrations has-pending-model-changes -p src/AvistaRD.Infrastructure -s src/AvistaRD.Infrastructure
+```
+
+To apply migrations from the CLI, pass the connection string explicitly (the tools don't read `.env`):
+
+```bash
+dotnet ef database update -p src/AvistaRD.Infrastructure -s src/AvistaRD.Infrastructure --connection "<connection string>"
+```
+
+## CI/CD
+
+Pull requests and merges to `master` run the Azure Pipelines pipeline in `azure-pipelines.yml`. See [docs/ci-cd.md](docs/ci-cd.md) for what it does and for the one-time Azure setup.

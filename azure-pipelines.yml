@@ -1,0 +1,245 @@
+# AvistaRD CI/CD (JAR-40)
+#
+#   Build  -> every pull request to master and every push to master:
+#             build + xUnit tests, EF model check + migrations bundle, lint + Vitest + Angular build.
+#   Deploy -> only pushes to master: apply migrations to Azure SQL, deploy the API to App Service,
+#             smoke-test /health and deploy the frontend to Static Web Apps.
+#
+# One-time Azure / Azure DevOps setup (service connection, Key Vault secrets, App Service settings,
+# branch protection): see docs/ci-cd.md.
+
+trigger:
+  branches:
+    include:
+      - master
+
+# Honoured when the repository lives on GitHub. Azure Repos ignores this section:
+# there, PR validation is configured with the "Build validation" branch policy.
+pr:
+  branches:
+    include:
+      - master
+
+variables:
+  buildConfiguration: Release
+  deployBranch: refs/heads/master
+  webDir: src/AvistaRD.Web
+  efProject: src/AvistaRD.Infrastructure
+
+  # ---- Azure resources: replace with the real names (none of these are secrets) ----
+  azureServiceConnection: sc-avistard-azure  # Azure Resource Manager service connection
+  keyVaultName: kv-avistard
+  apiAppName: app-avistard-api
+
+stages:
+  - stage: Build
+    displayName: Build and test
+    jobs:
+      - job: Api
+        displayName: API (.NET)
+        pool:
+          vmImage: ubuntu-latest
+        variables:
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+          NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET SDK (global.json)
+            inputs:
+              useGlobalJson: true
+
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            inputs:
+              key: 'nuget | "$(Agent.OS)" | Directory.Packages.props | **/*.csproj'
+              restoreKeys: |
+                nuget | "$(Agent.OS)"
+              path: $(NUGET_PACKAGES)
+
+          - script: dotnet tool restore
+            displayName: Restore local tools (dotnet-ef)
+
+          - script: dotnet restore AvistaRD.sln
+            displayName: Restore
+
+          - script: dotnet build AvistaRD.sln --configuration $(buildConfiguration) --no-restore
+            displayName: Build
+
+          - script: >
+              dotnet test AvistaRD.sln
+              --configuration $(buildConfiguration)
+              --no-build
+              --logger trx
+              --results-directory $(Agent.TempDirectory)/TestResults
+            displayName: Test (xUnit)
+
+          - task: PublishTestResults@2
+            displayName: Publish xUnit results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: $(Agent.TempDirectory)/TestResults/**/*.trx
+              testRunTitle: API unit tests
+
+          # Fails the build when someone changes the model without adding a migration.
+          - script: >
+              dotnet ef migrations has-pending-model-changes
+              --project $(efProject)
+              --startup-project $(efProject)
+              --configuration $(buildConfiguration)
+              --no-build
+            displayName: Check for model changes without a migration
+
+          # Built on PRs too, so a broken design-time setup is caught before the merge.
+          - script: >
+              dotnet ef migrations bundle
+              --project $(efProject)
+              --startup-project $(efProject)
+              --configuration $(buildConfiguration)
+              --no-build
+              --self-contained
+              --runtime linux-x64
+              --output $(Build.ArtifactStagingDirectory)/migrations/efbundle
+              --force
+            displayName: Build migrations bundle
+
+          - script: >
+              dotnet publish src/AvistaRD.Api/AvistaRD.Api.csproj
+              --configuration $(buildConfiguration)
+              --no-build
+              --output $(Build.ArtifactStagingDirectory)/api
+            displayName: Publish API
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+          - publish: $(Build.ArtifactStagingDirectory)/api
+            artifact: api
+            displayName: Upload API artifact
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+          - publish: $(Build.ArtifactStagingDirectory)/migrations
+            artifact: migrations
+            displayName: Upload migrations artifact
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+      - job: Web
+        displayName: Frontend (Angular)
+        pool:
+          vmImage: ubuntu-latest
+        variables:
+          CI: true
+          NG_CLI_ANALYTICS: false
+          npm_config_cache: $(Pipeline.Workspace)/.npm
+        steps:
+          - task: NodeTool@0
+            displayName: Install Node.js (.nvmrc)
+            inputs:
+              versionSource: fromFile
+              versionFilePath: $(webDir)/.nvmrc
+
+          # Same npm as the "packageManager" field in package.json (piped through xargs
+          # because $(...) is Azure Pipelines macro syntax).
+          - script: node -p "require('./package.json').packageManager" | xargs npm install --global
+            displayName: Install npm (packageManager)
+            workingDirectory: $(webDir)
+
+          - task: Cache@2
+            displayName: Cache npm
+            inputs:
+              key: 'npm | "$(Agent.OS)" | $(webDir)/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(npm_config_cache)
+
+          - script: npm ci
+            displayName: Install dependencies
+            workingDirectory: $(webDir)
+
+          - script: npm run lint
+            displayName: Lint
+            workingDirectory: $(webDir)
+
+          - script: npm run test:ci
+            displayName: Test (Vitest)
+            workingDirectory: $(webDir)
+
+          - task: PublishTestResults@2
+            displayName: Publish Vitest results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: $(webDir)/test-results/junit.xml
+              testRunTitle: Frontend unit tests
+
+          - script: npm run build
+            displayName: Build
+            workingDirectory: $(webDir)
+
+          # Includes staticwebapp.config.json (copied from public/).
+          - publish: $(webDir)/dist/avistard-web/browser
+            artifact: web
+            displayName: Upload frontend artifact
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - stage: Deploy
+    displayName: Deploy to Azure
+    dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], variables['deployBranch']))
+    jobs:
+      - deployment: Production
+        displayName: Migrate database, deploy API and frontend
+        pool:
+          vmImage: ubuntu-latest
+        environment: avistard-production
+        strategy:
+          runOnce:
+            deploy:
+              # The api, migrations and web artifacts are downloaded automatically
+              # to $(Pipeline.Workspace)/<artifact name>.
+              steps:
+                - task: AzureKeyVault@2
+                  displayName: Read secrets from Key Vault
+                  inputs:
+                    azureSubscription: ${{ variables.azureServiceConnection }}
+                    KeyVaultName: $(keyVaultName)
+                    SecretsFilter: DATABASE-MIGRATIONS-CONNECTION,SWA-DEPLOYMENT-TOKEN
+                    RunAsPreJob: false
+
+                # Pipeline artifacts don't keep the executable bit, hence the chmod.
+                - script: |
+                    chmod +x ./efbundle
+                    ./efbundle --connection "$MIGRATIONS_CONNECTION"
+                  displayName: Apply database migrations
+                  workingDirectory: $(Pipeline.Workspace)/migrations
+                  env:
+                    MIGRATIONS_CONNECTION: $(DATABASE-MIGRATIONS-CONNECTION)
+
+                - task: AzureWebApp@1
+                  name: deployApi
+                  displayName: Deploy API to App Service
+                  inputs:
+                    azureSubscription: ${{ variables.azureServiceConnection }}
+                    appType: webAppLinux
+                    appName: $(apiAppName)
+                    package: $(Pipeline.Workspace)/api
+                    runtimeStack: DOTNETCORE|8.0
+                    startUpCommand: dotnet AvistaRD.Api.dll
+
+                # /health checks the database, so this also proves that the Key Vault
+                # references and the managed identity work in App Service.
+                - script: |
+                    curl --fail --silent --show-error \
+                      --retry 10 --retry-delay 15 --retry-all-errors \
+                      "$API_URL/health"
+                  displayName: Smoke test API (/health)
+                  env:
+                    API_URL: $(deployApi.AppServiceApplicationUrl)
+
+                - task: AzureStaticWebApp@0
+                  displayName: Deploy frontend to Static Web Apps
+                  inputs:
+                    cwd: $(Pipeline.Workspace)/web
+                    app_location: /
+                    skip_app_build: true
+                    skip_api_build: true
+                    azure_static_web_apps_api_token: $(SWA-DEPLOYMENT-TOKEN)
