@@ -24,8 +24,9 @@ public static partial class InfrastructureExtensions
             // Replacing the parameter with the actual entity parameter / (e.g => (entityParameter => ....))
             Expression filterBody = ReplacingExpressionVisitor.Replace(filter.Parameters[0], entityParam, filter.Body);
 
-            // Getting the current query filters of the actual entity
-            LambdaExpression? existingFilter = entity.GetQueryFilter();
+            // Getting the current (anonymous) query filter of the actual entity
+            LambdaExpression? existingFilter = entity.GetDeclaredQueryFilters()
+                .FirstOrDefault(queryFilter => queryFilter.IsAnonymous)?.Expression;
 
             if (existingFilter is not null)
             {

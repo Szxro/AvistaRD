@@ -1,6 +1,6 @@
 # Running AvistaRD Project
 
-1. **Install prerequisites:** Git, the .NET 8 SDK (the exact version is pinned in `global.json`) and Node.js (the exact version is pinned in `src/AvistaRD.Web/.nvmrc`; with nvm run `nvm use` inside that folder). The Angular CLI and `dotnet-ef` are project-local, so no global install is needed.
+1. **Install prerequisites:** Git, the .NET 10 SDK (the exact version is pinned in `global.json`) and Node.js (the exact version is pinned in `src/AvistaRD.Web/.nvmrc`; with nvm run `nvm use` inside that folder). The Angular CLI and `dotnet-ef` are project-local, so no global install is needed.
 
 2. **Clone the repository:**
    ```bash

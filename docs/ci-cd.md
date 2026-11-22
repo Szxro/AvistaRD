@@ -74,7 +74,7 @@ SWA=swa-avistard-web
 
 ### 3. App Service (API)
 
-1. Create a **Linux** web app with the **.NET 8** runtime stack.
+1. Create a **Linux** web app with the **.NET 10** runtime stack.
 2. Enable its system-assigned managed identity and let it read secrets:
    ```bash
    PRINCIPAL_ID=$(az webapp identity assign -g $RG -n $API_APP --query principalId -o tsv)

@@ -222,7 +222,7 @@ stages:
                     appType: webAppLinux
                     appName: $(apiAppName)
                     package: $(Pipeline.Workspace)/api
-                    runtimeStack: DOTNETCORE|8.0
+                    runtimeStack: DOTNETCORE|10.0
                     startUpCommand: dotnet AvistaRD.Api.dll
 
                 # /health checks the database, so this also proves that the Key Vault
