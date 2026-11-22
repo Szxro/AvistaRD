@@ -45,7 +45,12 @@ public static class InfrastructureServiceRegistration
             .AddEntityFrameworkStores<AppDbContext>();
         
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
-        
+
+        // Health checks (mapped by the API at /health and /health/live)
+        services
+            .AddHealthChecks()
+            .AddDbContextCheck<AppDbContext>("database");
+
         return services;
     }
 }

@@ -2,6 +2,7 @@ using AvistaRD.Api.Extensions;
 using AvistaRD.Api.Middlewares;
 using AvistaRD.Application;
 using AvistaRD.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -37,7 +38,13 @@ WebApplication app = builder.Build();
     app.MapGroup("/api/auth").MapIdentityApi<IdentityUser>();
 
     app.MapControllers();
-    
+
+    // Liveness: the process is up (no dependencies). Used by the App Service health check.
+    app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+
+    // Readiness: runs every check, including the database. Used by the pipeline smoke test.
+    app.MapHealthChecks("/health");
+
     app.UseMiddleware<FallBackRouteMiddleware>();
 
     app.Run();
