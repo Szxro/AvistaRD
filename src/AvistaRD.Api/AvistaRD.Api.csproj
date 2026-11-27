@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <!-- Run through dotnet.exe instead of a generated AvistaRD.Api.exe (blocked by Defender ASR on corporate machines) -->
+        <UseAppHost>false</UseAppHost>
     </PropertyGroup>
 
     <ItemGroup>

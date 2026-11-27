@@ -22,7 +22,11 @@ public static partial class InfrastructureExtensions
             InjectAttribute? attribute = type.GetCustomAttribute<InjectAttribute>();
             
             // The class itself is going to be the interfaceType or the interface that have the convention I{TYPENAME}
-            Type serviceType = type.GetInterfaces().FirstOrDefault() ?? type;
+            Type[] interfaces = type.GetInterfaces();
+
+            Type serviceType = interfaces.FirstOrDefault(contract => contract.Name == $"I{type.Name}")
+                               ?? interfaces.FirstOrDefault()
+                               ?? type;
             
             if (attribute is null) continue;
 
