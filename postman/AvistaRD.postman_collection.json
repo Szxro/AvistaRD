@@ -118,6 +118,68 @@
             },
             "description": "Campos vacíos: devuelve los errores de validación agrupados por campo."
           }
+        },
+        {
+          "name": "Update species",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commonName\": \"Cigua palmera (editada)\",\n  \"scientificName\": \"Dulus dominicus\",\n  \"isEndemic\": true,\n  \"isSensible\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/species/{{speciesId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "species", "{{speciesId}}"]
+            },
+            "description": "Edita la especie creada por 'Register species' (usa la variable `speciesId`)."
+          }
+        },
+        {
+          "name": "Update species - not found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commonName\": \"No existe\",\n  \"scientificName\": \"Species inexistens\",\n  \"isEndemic\": false,\n  \"isSensible\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/species/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "species", "999999"]
+            },
+            "description": "Id que no existe: devuelve 404."
+          }
         }
       ]
     }

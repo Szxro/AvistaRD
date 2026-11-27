@@ -31,7 +31,17 @@ public abstract class BaseController : ControllerBase
 
         return Results.Ok(response);
     }
-    
+
+    protected IResult Success(Result result)
+    {
+        if (result.IsFailure)
+        {
+            throw new InvalidOperationException("Result indicates failure, but Success method was called.");
+        }
+
+        return Results.Ok(new SuccessResponse<object>());
+    }
+
     protected IResult Problem(Result result)
     {
         if (result.IsSuccess)
