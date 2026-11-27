@@ -9,8 +9,8 @@ public class Sighting : AuditableEntity
         Evidences = new List<Evidence>();
         SightingThreats = new List<SightingThreat>();
     }
-    
-    public string UserId { get; set; }
+
+    public string UserId { get; set; } = null!;
 
     public int SpeciesId { get; set; }
     
