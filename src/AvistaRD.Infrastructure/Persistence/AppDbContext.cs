@@ -4,14 +4,14 @@ using AvistaRD.Domain;
 using AvistaRD.Domain.Common;
 using AvistaRD.Domain.Entities;
 using AvistaRD.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Identity;
+using AvistaRD.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AvistaRD.Infrastructure.Persistence;
 
-public class AppDbContext : IdentityDbContext<IdentityUser>, IAppDbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser>, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     

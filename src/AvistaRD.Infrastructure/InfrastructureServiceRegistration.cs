@@ -1,5 +1,6 @@
 ﻿using AvistaRD.Application.Common.Abstractions;
 using AvistaRD.Infrastructure.Extensions;
+using AvistaRD.Infrastructure.Identity;
 using AvistaRD.Infrastructure.Options;
 using AvistaRD.Infrastructure.Persistence;
 using AvistaRD.Infrastructure.Persistence.Interceptors;
@@ -40,8 +41,15 @@ public static class InfrastructureServiceRegistration
             }
         });
         
+        // Identity and its bearer tokens, the API's authentication scheme. The endpoints are our own
+        // (AuthController) instead of MapIdentityApi, to choose the role and the account status at registration.
         services
-            .AddIdentityApiEndpoints<IdentityUser>()
+            .AddIdentityApiEndpoints<ApplicationUser>(options =>
+            {
+                // The email is also the user name, so it must be unique
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>();
         
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());

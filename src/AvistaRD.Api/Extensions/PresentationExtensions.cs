@@ -1,9 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using AvistaRD.Api.ExceptionHandlers;
 using AvistaRD.Api.Middlewares;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 
 namespace AvistaRD.Api.Extensions;
 
@@ -11,17 +12,39 @@ public static class PresentationExtensions
 {
      public static IServiceCollection AddPresentationLayer(this IServiceCollection services, IHostEnvironment env)
     {
-        // Authorization and Authorization
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+        // Authentication (Identity bearer tokens) is registered by AddIdentityApiEndpoints in the Infrastructure layer
         services.AddAuthorization();
-        
-        // Core Services
-        services.AddControllers();
+
+        // Core Services: enums travel as text ("Pending" instead of 0)
+        services.AddControllers()
+            .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        // BaseController returns IResult (Results.Ok, Results.Problem), which serializes with these options instead
+        services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddEndpointsApiExplorer();
         services.AddProblemDetails();
-        
+
         //Swagger
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            // "Authorize" button: paste the accessToken returned by POST /api/auth/login
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                Description = "accessToken returned by POST /api/auth/login"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
         
         // Rate Limiting
         services.AddRateLimiter(options =>
@@ -85,7 +108,8 @@ public static class PresentationExtensions
         services.AddExceptionHandler<GlobalExceptionHandler>();
         
         // Middlewares (Register factory-activated middleware if it has injected dependencies.)
-        services.AddTransient<FallBackRouteMiddleware>(); 
+        services.AddTransient<FallBackRouteMiddleware>();
+        services.AddTransient<SessionValidationMiddleware>();
         
         // Cors
         services.AddCors(options =>

@@ -33,4 +33,17 @@ public class Error
     public static Error Forbidden(string description) => new Error("Error.Forbidden", description, ErrorType.Forbidden);
     
     public static Error Failure(string description) => new Error("Error.Failure", description, ErrorType.Failure);
+
+    // Same factories with a specific code (e.g. "Users.NotFound") so clients can tell errors apart
+    public static Error Validation(string errorCode, string description) => new Error(errorCode, description, ErrorType.Validation);
+
+    public static Error NotFound(string errorCode, string description) => new Error(errorCode, description, ErrorType.NotFound);
+
+    public static Error Conflict(string errorCode, string description) => new Error(errorCode, description, ErrorType.Conflict);
+
+    public static Error Unauthorized(string errorCode, string description) => new Error(errorCode, description, ErrorType.Unauthorized);
+
+    public static Error Forbidden(string errorCode, string description) => new Error(errorCode, description, ErrorType.Forbidden);
+
+    public static Error Failure(string errorCode, string description) => new Error(errorCode, description, ErrorType.Failure);
 }

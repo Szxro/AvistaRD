@@ -1,6 +1,83 @@
 @AvistaRD.Api_HostAddress = http://localhost:5071
+# Paste the accessToken / refreshToken returned by login, and an id returned by the list
+@accessToken = ACCESS_TOKEN
+@refreshToken = REFRESH_TOKEN
+@userId = USER_ID
 
 GET {{AvistaRD.Api_HostAddress}}/weatherforecast/
 Accept: application/json
+
+### Register a citizen (active right away; role is optional and defaults to Ciudadano)
+POST {{AvistaRD.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ciudadano@example.com",
+  "password": "Ciudadano123!",
+  "fullName": "Juan Pérez",
+  "role": "Ciudadano"
+}
+
+### Register a validator (pending until an administrator approves it)
+POST {{AvistaRD.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "validador@example.com",
+  "password": "Validador123!",
+  "fullName": "María Gómez",
+  "role": "Validador"
+}
+
+### Login (returns accessToken and refreshToken)
+POST {{AvistaRD.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ciudadano@example.com",
+  "password": "Ciudadano123!"
+}
+
+### Refresh the tokens
+POST {{AvistaRD.Api_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Signed-in user's profile (role and status)
+GET {{AvistaRD.Api_HostAddress}}/api/users/me
+Authorization: Bearer {{accessToken}}
+
+### Administrador: pending accounts, first page
+GET {{AvistaRD.Api_HostAddress}}/api/admin/users?status=Pending&page=1&pageSize=10
+Authorization: Bearer {{accessToken}}
+
+### Administrador: one account
+GET {{AvistaRD.Api_HostAddress}}/api/admin/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### Administrador: approve
+POST {{AvistaRD.Api_HostAddress}}/api/admin/users/{{userId}}/approve
+Authorization: Bearer {{accessToken}}
+
+### Administrador: edit name and role
+PUT {{AvistaRD.Api_HostAddress}}/api/admin/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "fullName": "María Gómez Pérez",
+  "role": "Guardaparques"
+}
+
+### Administrador: deactivate
+POST {{AvistaRD.Api_HostAddress}}/api/admin/users/{{userId}}/deactivate
+Authorization: Bearer {{accessToken}}
+
+### Administrador: reactivate
+POST {{AvistaRD.Api_HostAddress}}/api/admin/users/{{userId}}/reactivate
+Authorization: Bearer {{accessToken}}
 
 ###

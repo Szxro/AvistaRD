@@ -150,72 +150,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                     b.ToTable("audit_log", (string)null);
                 });
 
-            modelBuilder.Entity("AvistaRD.Domain.Evidence", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<int>("Height")
-                        .HasColumnType("int")
-                        .HasColumnName("height");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("modified_at");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("modified_by");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("path");
-
-                    b.Property<int>("SightingId")
-                        .HasColumnType("int")
-                        .HasColumnName("sighting_id");
-
-                    b.Property<int>("Size")
-                        .HasColumnType("int")
-                        .HasColumnName("size");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("int")
-                        .HasColumnName("width");
-
-                    b.HasKey("Id")
-                        .HasName("pk_evidence");
-
-                    b.HasIndex("SightingId")
-                        .HasDatabaseName("ix_evidence_sighting_id");
-
-                    b.ToTable("evidence", (string)null);
-                });
-
-            modelBuilder.Entity("AvistaRD.Domain.Sighting", b =>
+            modelBuilder.Entity("AvistaRD.Domain.Entities.Sighting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -293,6 +228,71 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_sighting_zone_id");
 
                     b.ToTable("sighting", (string)null);
+                });
+
+            modelBuilder.Entity("AvistaRD.Domain.Evidence", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("int")
+                        .HasColumnName("height");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("path");
+
+                    b.Property<int>("SightingId")
+                        .HasColumnType("int")
+                        .HasColumnName("sighting_id");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("int")
+                        .HasColumnName("size");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("int")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_evidence");
+
+                    b.HasIndex("SightingId")
+                        .HasDatabaseName("ix_evidence_sighting_id");
+
+                    b.ToTable("evidence", (string)null);
                 });
 
             modelBuilder.Entity("AvistaRD.Domain.SightingThreat", b =>
@@ -598,70 +598,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                     b.ToTable("zone", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("concurrency_stamp");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)")
-                        .HasColumnName("normalized_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_asp_net_roles");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[normalized_name] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("claim_type");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("claim_value");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("role_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_asp_net_role_claims");
-
-                    b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_asp_net_role_claims_role_id");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+            modelBuilder.Entity("AvistaRD.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)")
@@ -676,6 +613,12 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("concurrency_stamp");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
@@ -684,6 +627,12 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit")
                         .HasColumnName("email_confirmed");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("full_name");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit")
@@ -719,6 +668,12 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("security_stamp");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("status");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit")
                         .HasColumnName("two_factor_enabled");
@@ -739,7 +694,103 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[normalized_user_name] IS NOT NULL");
 
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_asp_net_users_status");
+
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("concurrency_stamp");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("normalized_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_asp_net_roles");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[normalized_name] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "eedda775-1352-41e7-9574-caf858748797",
+                            ConcurrencyStamp = "eedda775-1352-41e7-9574-caf858748797",
+                            Name = "Administrador",
+                            NormalizedName = "ADMINISTRADOR"
+                        },
+                        new
+                        {
+                            Id = "9e1d9be6-3fad-4dc6-9d03-f37d001c63b6",
+                            ConcurrencyStamp = "9e1d9be6-3fad-4dc6-9d03-f37d001c63b6",
+                            Name = "Validador",
+                            NormalizedName = "VALIDADOR"
+                        },
+                        new
+                        {
+                            Id = "6fac0b57-765d-4bc7-a257-b800e8d13c35",
+                            ConcurrencyStamp = "6fac0b57-765d-4bc7-a257-b800e8d13c35",
+                            Name = "Guardaparques",
+                            NormalizedName = "GUARDAPARQUES"
+                        },
+                        new
+                        {
+                            Id = "495db6b9-9e46-46a6-8eb2-902af489b3c2",
+                            ConcurrencyStamp = "495db6b9-9e46-46a6-8eb2-902af489b3c2",
+                            Name = "Ciudadano",
+                            NormalizedName = "CIUDADANO"
+                        });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("claim_type");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("claim_value");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_asp_net_role_claims");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_asp_net_role_claims_role_id");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -858,26 +909,14 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AvistaRD.Domain.AuditLog", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_audit_log_users_user_id");
                 });
 
-            modelBuilder.Entity("AvistaRD.Domain.Evidence", b =>
-                {
-                    b.HasOne("AvistaRD.Domain.Sighting", "Sighting")
-                        .WithMany("Evidences")
-                        .HasForeignKey("SightingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_evidence_sighting_sighting_id");
-
-                    b.Navigation("Sighting");
-                });
-
-            modelBuilder.Entity("AvistaRD.Domain.Sighting", b =>
+            modelBuilder.Entity("AvistaRD.Domain.Entities.Sighting", b =>
                 {
                     b.HasOne("AvistaRD.Domain.Species", "Species")
                         .WithMany("Sightings")
@@ -886,7 +925,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_sighting_species_species_id");
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -904,9 +943,21 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                     b.Navigation("Zone");
                 });
 
+            modelBuilder.Entity("AvistaRD.Domain.Evidence", b =>
+                {
+                    b.HasOne("AvistaRD.Domain.Entities.Sighting", "Sighting")
+                        .WithMany("Evidences")
+                        .HasForeignKey("SightingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_evidence_sighting_sighting_id");
+
+                    b.Navigation("Sighting");
+                });
+
             modelBuilder.Entity("AvistaRD.Domain.SightingThreat", b =>
                 {
-                    b.HasOne("AvistaRD.Domain.Sighting", "Sighting")
+                    b.HasOne("AvistaRD.Domain.Entities.Sighting", "Sighting")
                         .WithMany("SightingThreats")
                         .HasForeignKey("SightingId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -927,14 +978,14 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AvistaRD.Domain.Validation", b =>
                 {
-                    b.HasOne("AvistaRD.Domain.Sighting", "Sighting")
+                    b.HasOne("AvistaRD.Domain.Entities.Sighting", "Sighting")
                         .WithMany()
                         .HasForeignKey("SightingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_validation_sighting_sighting_id");
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -964,7 +1015,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -974,7 +1025,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -991,7 +1042,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_asp_net_user_roles_asp_net_roles_role_id");
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1001,7 +1052,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("AvistaRD.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1009,7 +1060,7 @@ namespace AvistaRD.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
                 });
 
-            modelBuilder.Entity("AvistaRD.Domain.Sighting", b =>
+            modelBuilder.Entity("AvistaRD.Domain.Entities.Sighting", b =>
                 {
                     b.Navigation("Evidences");
 

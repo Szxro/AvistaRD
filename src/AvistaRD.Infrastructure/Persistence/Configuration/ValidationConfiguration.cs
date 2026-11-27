@@ -1,5 +1,5 @@
 using AvistaRD.Domain;
-using Microsoft.AspNetCore.Identity;
+using AvistaRD.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +9,7 @@ public class ValidationConfiguration : IEntityTypeConfiguration<Validation>
 {
     public void Configure(EntityTypeBuilder<Validation> builder)
     {
-        builder.HasOne<IdentityUser>()
+        builder.HasOne<ApplicationUser>()
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .IsRequired(false)

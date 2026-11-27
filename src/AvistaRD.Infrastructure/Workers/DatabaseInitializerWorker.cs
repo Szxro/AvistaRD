@@ -25,5 +25,7 @@ public class DatabaseInitializerWorker : BaseWorker<DatabaseInitializerWorker>
         await initializer.CanConnectAsync(cancellationToken);
 
         await initializer.MigrateAsync(cancellationToken);
+
+        await initializer.SeedAsync(cancellationToken);
     }
 }

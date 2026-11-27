@@ -1,6 +1,6 @@
 using AvistaRD.Domain;
 using AvistaRD.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+using AvistaRD.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,7 +10,7 @@ public class SightingConfiguration : IEntityTypeConfiguration<Sighting>
 {
     public void Configure(EntityTypeBuilder<Sighting> builder)
     {
-        builder.HasOne<IdentityUser>()
+        builder.HasOne<ApplicationUser>()
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .IsRequired(false)

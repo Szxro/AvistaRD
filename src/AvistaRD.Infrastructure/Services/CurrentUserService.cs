@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using AvistaRD.Application.Contracts;
 using AvistaRD.Infrastructure.Common.Attributes;
 using AvistaRD.Infrastructure.Common.Enums;
@@ -17,21 +17,12 @@ public class CurrentUserService : ICurrentUserService
         _httpContext = httpContext;
     }
     
-    public string? UserName 
-        => _httpContext?.HttpContext?.User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Name)?.Value;
+    // Claims issued by Identity (UserClaimsPrincipalFactory): the name is the email and the id a GUID string
+    public string? UserName
+        => _httpContext?.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
 
-    public int? UserId
-    {
-        get
-        {
-            string? userIdClaim = _httpContext.HttpContext?.User.Claims
-                .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
-
-            return int.TryParse(userIdClaim, out int userId)
-                ? userId
-                : null;
-        }
-    }
+    public string? UserId
+        => _httpContext?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     public string IpAddress =>
         _httpContext?.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";

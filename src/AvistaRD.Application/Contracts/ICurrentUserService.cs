@@ -4,7 +4,8 @@ public interface ICurrentUserService
 {
     string? UserName { get; }
 
-    int? UserId { get; }
+    // Identity user ids are strings (GUIDs)
+    string? UserId { get; }
     
     string IpAddress { get; }
     
